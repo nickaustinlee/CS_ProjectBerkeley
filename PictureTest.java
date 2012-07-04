@@ -31,6 +31,7 @@ public class PictureTest extends TestCase {
 		assertTrue(pic.equals(picCopy));
 		assertTrue(picCorrect.equals(picTest));
 	}
+	
 	/*
 	 * Validate that negate works and does not modify the 
 	 * original Picture object.
@@ -44,6 +45,91 @@ public class PictureTest extends TestCase {
 		assertTrue(pic.equals(picCopy));
 		assertTrue(picCorrect.equals(picTest));
 	}
+	
+	/*
+	 * Validate that grayscale works and does not modify the 
+	 * original Picture object.
+	 */
+	public void testLighten()
+	{
+		Picture pic 		= Picture.loadPicture("Gray.bmp");
+		Picture picCopy 	= new Picture(pic);
+		Picture picCorrect	= Picture.loadPicture("Gray_lighter.bmp");
+		Picture picTest		= pic.lighten(20);
+		assertTrue(pic.equals(picCopy));
+		assertTrue(picCorrect.equals(picTest));
+	}
+	
+	/*
+	 * Validate that grayscale works and does not modify the 
+	 * original Picture object.
+	 */
+	public void testDarken()
+	{
+		Picture pic 		= Picture.loadPicture("Gray.bmp");
+		Picture picCopy 	= new Picture(pic);
+		Picture picCorrect	= Picture.loadPicture("Gray_darker.bmp");
+		Picture picTest		= pic.grayscale();
+		assertTrue(pic.equals(picCopy));
+		assertTrue(picCorrect.equals(picTest));
+	}
+	
+	/*
+	 * Validate that grayscale works and does not modify the 
+	 * original Picture object.
+	 */
+	public void testBlue()
+	{
+		Picture pic 		= Picture.loadPicture("Gray.bmp");
+		Picture picCopy 	= new Picture(pic);
+		Picture picCorrect	= Picture.loadPicture("Gray_more_blue.bmp");
+		Picture picTest		= pic.grayscale();
+		assertTrue(pic.equals(picCopy));
+		assertTrue(picCorrect.equals(picTest));
+	}
+	
+	/*
+	 * Validate that grayscale works and does not modify the 
+	 * original Picture object.
+	 */
+	public void testRed()
+	{
+		Picture pic 		= Picture.loadPicture("Gray.bmp");
+		Picture picCopy 	= new Picture(pic);
+		Picture picCorrect	= Picture.loadPicture("Gray_more_red.bmp");
+		Picture picTest		= pic.grayscale();
+		assertTrue(pic.equals(picCopy));
+		assertTrue(picCorrect.equals(picTest));
+	}
+	
+	/*
+	 * Validate that grayscale works and does not modify the 
+	 * original Picture object.
+	 */
+	public void testGreen()
+	{
+		Picture pic 		= Picture.loadPicture("Gray.bmp");
+		Picture picCopy 	= new Picture(pic);
+		Picture picCorrect	= Picture.loadPicture("Gray_more_green.bmp");
+		Picture picTest		= pic.grayscale();
+		assertTrue(pic.equals(picCopy));
+		assertTrue(picCorrect.equals(picTest));
+	}
+	
+	/*
+	 * Validate that grayscale works and does not modify the 
+	 * original Picture object.
+	 */
+	public void testChroma()
+	{
+		Picture pic 		= Picture.loadPicture("Creek.bmp");
+		Picture picCopy 	= new Picture(pic);
+		Picture picCorrect	= Picture.loadPicture("Creek_grayscale.bmp");
+		Picture picTest		= pic.grayscale();
+		assertTrue(pic.equals(picCopy));
+		assertTrue(picCorrect.equals(picTest));
+	}
+	
 	/*
 	 * Validate that rotate(1) works and does not modify the 
 	 * original Picture object.

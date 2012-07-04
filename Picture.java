@@ -1,6 +1,6 @@
-import java.awt.*;
+import java.awt.Color;
 import java.net.URL;
-
+import java.lang.Math;
 /**
  * A class that represents a picture.  This class inherits from SimplePicture
  * 	and allows the student to add functionality and picture effects.  
@@ -100,7 +100,7 @@ public class Picture extends SimplePicture
 		" height = " + this.getHeight() + ", width = " + this.getWidth();
 		return output;
 	}
-
+	
 	/////////////////////// PROJECT 1 BEGINS HERE /////////////////////////////
 
 	/* Each of the methods below is constructive: in other words, each of 
@@ -171,10 +171,51 @@ public class Picture extends SimplePicture
 	public static boolean helpersWork() {
 		if (!Picture.setPixelToGrayWorks())
 		{
+			System.out.println("Pixel to Gray Failed"); 
 			return false;
 		}
-
-		// You could put other tests here..
+		
+		if (!Picture.setPixelToNegativeWorks())
+		{
+			System.out.println("Pixel to Negative Failed"); 
+			return false;
+		}
+		
+		if (!Picture.setPixelToLightenWorks())
+		{
+			System.out.println("Pixel to Lighten Failed"); 
+			return false;
+		}
+		
+		if (!Picture.setPixelToDarkenWorks())
+		{
+			System.out.println("Pixel to Darken Failed"); 
+			return false;
+		}
+		
+		if (!Picture.setPixelToAddBlueWorks())
+		{
+			System.out.println("Pixel to Blue Failed"); 
+			return false;
+		}
+		
+		if (!Picture.setPixelToAddRedWorks())
+		{
+			System.out.println("Pixel to Red Failed"); 
+			return false;
+		}
+		
+		if (!Picture.setPixelToAddGreenWorks())
+		{
+			System.out.println("Pixel to Green Failed"); 
+			return false;
+		}
+		
+		if (!Picture.setPixelToChromaKeyWorks())
+		{
+			System.out.println("Pixel to Chroma Failed"); 
+			return false;
+		}
 
 		return true;
 	}
@@ -227,12 +268,14 @@ public class Picture extends SimplePicture
 		int originalRed = focalPixel.getRed(); 
 		int originalGreen = focalPixel.getGreen(); 
 		int originalBlue = focalPixel.getBlue(); 
+		int originalAlpha    = focalPixel.getColor().getAlpha();
 		
 		bg.setPixelToNegative(10, 10);
 		//the formula for "negate" is 255-original color 
 		boolean redCorrect   = focalPixel.getRed() == 255-originalRed; 
 		boolean greenCorrect = focalPixel.getGreen() == 255-originalGreen; 
 		boolean blueCorrect  = focalPixel.getBlue() == 255-originalBlue; 
+		boolean alphaCorrect = focalPixel.getAlpha() == originalAlpha;
 		return redCorrect && greenCorrect && blueCorrect; 
 	}
 
@@ -284,39 +327,42 @@ public class Picture extends SimplePicture
 	 */
 	private static boolean setPixelToLightenWorks() {
 		
-		boolean redCorrect = false; //initialize 
-		boolean greenCorrect = false; 
-		boolean blueCorrect = false; 
+		boolean redCorrect;  //initialize 
+		boolean greenCorrect; 
+		boolean blueCorrect;
+		boolean alphaCorrect; 
 		
+		//I'm going to make two copies of the image to compare stuff. 
 		Picture bg           = Picture.loadPicture("Creek.bmp");
+		Picture bg2 		= Picture.loadPicture("Creek.bmp"); 
+		
+		//I will make two pixels, copies of the identical pixel on the two images, which are identical 
+		Pixel originalFocalPixel = bg2.getPixel(10,10); 
 		Pixel focalPixel     = bg.getPixel(10, 10);
 		
+		//get the original color intensities 
 		int originalRed = focalPixel.getRed(); 
 		int originalGreen = focalPixel.getGreen(); 
 		int originalBlue = focalPixel.getBlue(); 
+		int originalAlpha    = focalPixel.getColor().getAlpha();
 		
-		bg.setPixelToLighten(10, 10, 50); //lighten pixel 10,10 by positive 50 
+		bg.setPixelToLighten(10, 10, 50); //lighten pixel 10,10 by positive 50 on FIRST image
 		
-		if (originalRed+50<=255) { //check to see if we can get a valid value below 255
-		 redCorrect   = focalPixel.getRed() == originalRed+50;
-		} else {
-			 redCorrect = focalPixel.getRed() == 255; 
-		}
+		//adjust comparison copy manually, so we can check final result 
+		int newRed = originalRed + 50; 
+		int newGreen = originalGreen + 50; 
+		int newBlue = originalBlue + 50; 
+		originalFocalPixel.setRed(newRed); 
+		originalFocalPixel.setGreen(newGreen); 
+		originalFocalPixel.setBlue(newBlue); 
 		
-		if (originalGreen+50<=255) { //check to see if we can get a valid value below 255
-			 greenCorrect   = focalPixel.getGreen() == originalGreen+50;
-			} else {
-				 greenCorrect = focalPixel.getGreen() == 255; 
-			}
+		alphaCorrect = focalPixel.getAlpha() == originalAlpha;
+		redCorrect = focalPixel.getRed()==originalFocalPixel.getRed(); 
+		greenCorrect = focalPixel.getGreen()==originalFocalPixel.getGreen(); 
+		blueCorrect = focalPixel.getBlue()==originalFocalPixel.getBlue(); 
 		
-		if (originalBlue+50<=255) { //check to see if we can get a valid value below 255
-			 blueCorrect   = focalPixel.getBlue() == originalBlue+50;
-			} else {
-				 blueCorrect = focalPixel.getBlue() == 255; 
-			}
+		return redCorrect && greenCorrect && blueCorrect && alphaCorrect; 
 		
-		return redCorrect && greenCorrect && blueCorrect;
-
 	}
 
 	/**
@@ -355,27 +401,6 @@ public class Picture extends SimplePicture
 		int newGreen = currentPixel.getGreen() - amount;
 		int newBlue = currentPixel.getBlue() - amount;
 		
-		if(newRed < 0){
-			newRed = 0;
-		}
-		else if(newRed > 255){
-			newRed = 255;
-		}
-		
-		if(newGreen < 0){
-			newGreen = 0;
-		}
-		else if(newGreen > 255){
-			newRed = 255;
-		}
-		
-		if(newBlue < 0){
-			newBlue = 0;
-		}
-		else if(newBlue > 255){
-			newRed = 255;
-		}
-		
 		currentPixel.setRed(newRed);
 		currentPixel.setGreen(newGreen);
 		currentPixel.setBlue(newBlue);
@@ -386,6 +411,43 @@ public class Picture extends SimplePicture
 	 * the JUnit file through the public method Picture.helpersWork().
 	 */
 	private static boolean setPixelToDarkenWorks() {
+		
+		boolean redCorrect;  //initialize 
+		boolean greenCorrect;  
+		boolean blueCorrect;  
+		boolean alphaCorrect; 
+		
+		//I'm going to make two copies of the image to compare stuff. 
+		Picture bg           = Picture.loadPicture("Creek.bmp");
+		Picture bg2 		= Picture.loadPicture("Creek.bmp"); 
+		
+		//I will make two pixels, copies of the identical pixel on the two images, which are identical 
+		Pixel originalFocalPixel = bg2.getPixel(10,10); 
+		Pixel focalPixel     = bg.getPixel(10, 10);
+		
+		//get the original color intensities 
+		int originalRed = focalPixel.getRed(); 
+		int originalGreen = focalPixel.getGreen(); 
+		int originalBlue = focalPixel.getBlue(); 
+		int originalAlpha    = focalPixel.getColor().getAlpha();
+		
+		bg.setPixelToDarken(10, 10, 50); //darken pixel 10,10 by 50 on FIRST image
+		
+		//adjust comparison copy manually, so we can check final result 
+		int newRed = originalRed - 50; 
+		int newGreen = originalGreen - 50; 
+		int newBlue = originalBlue - 50; 
+		originalFocalPixel.setRed(newRed); 
+		originalFocalPixel.setGreen(newGreen); 
+		originalFocalPixel.setBlue(newBlue); 
+		
+		alphaCorrect = focalPixel.getAlpha() == originalAlpha;
+		redCorrect = focalPixel.getRed()==originalFocalPixel.getRed(); 
+		greenCorrect = focalPixel.getGreen()==originalFocalPixel.getGreen(); 
+		blueCorrect = focalPixel.getBlue()==originalFocalPixel.getBlue(); 
+		
+		return redCorrect && greenCorrect && blueCorrect && alphaCorrect; 
+		
 	}
 
 	/**
@@ -422,13 +484,6 @@ public class Picture extends SimplePicture
 		
 		int newBlue = currentPixel.getBlue() + amount;
 		
-		if(newBlue < 0){
-			newBlue = 0;
-		}
-		else if(newBlue > 255){
-			newBlue = 255;
-		}
-		
 		currentPixel.setBlue(newBlue);
 	}
 	
@@ -437,6 +492,36 @@ public class Picture extends SimplePicture
 	 * the JUnit file through the public method Picture.helpersWork().
 	 */
 	private static boolean setPixelToAddBlueWorks() {
+		
+		boolean redCorrect; //initialize 
+		boolean greenCorrect; 
+		boolean blueCorrect; 
+		boolean alphaCorrect; 
+		
+		//I'm going to make two copies of the image to compare stuff. 
+		Picture bg           = Picture.loadPicture("Creek.bmp");
+		Picture bg2 		= Picture.loadPicture("Creek.bmp"); 
+		
+		//I will make two pixels, copies of the identical pixel on the two images, which are identical 
+		Pixel originalFocalPixel = bg2.getPixel(10,10); 
+		Pixel focalPixel     = bg.getPixel(10, 10);
+		
+		//get the original color intensities 
+		int originalBlue = focalPixel.getBlue(); 
+		int originalAlpha    = focalPixel.getColor().getAlpha();
+		
+		bg.setPixelToAddBlue(10, 10, 50); //add blue to pixel 10,10 by positive 50 on FIRST image
+		
+		//adjust comparison copy manually, so we can check final result 
+		int newBlue = originalBlue + 50; 
+		originalFocalPixel.setBlue(newBlue); 
+		
+		alphaCorrect = focalPixel.getAlpha() == originalAlpha;
+		redCorrect = focalPixel.getRed()==originalFocalPixel.getRed(); 
+		greenCorrect = focalPixel.getGreen()==originalFocalPixel.getGreen(); 
+		blueCorrect = focalPixel.getBlue()==originalFocalPixel.getBlue(); 
+		
+		return redCorrect && greenCorrect && blueCorrect && alphaCorrect; 
 	}
 	
 	/**
@@ -473,13 +558,6 @@ public class Picture extends SimplePicture
 		
 		int newRed = currentPixel.getRed() + amount;
 		
-		if(newRed < 0){
-			newRed = 0;
-		}
-		else if(newRed > 255){
-			newRed = 255;
-		}
-		
 		currentPixel.setRed(newRed);
 	}
 	
@@ -488,6 +566,37 @@ public class Picture extends SimplePicture
 	 * the JUnit file through the public method Picture.helpersWork().
 	 */
 	private static boolean setPixelToAddRedWorks() {
+		
+		boolean redCorrect; //initialize 
+		boolean greenCorrect; 
+		boolean blueCorrect; 
+		boolean alphaCorrect; 
+		
+		//I'm going to make two copies of the image to compare stuff. 
+		Picture bg           = Picture.loadPicture("Creek.bmp");
+		Picture bg2 		= Picture.loadPicture("Creek.bmp"); 
+		
+		//I will make two pixels, copies of the identical pixel on the two images, which are identical 
+		Pixel originalFocalPixel = bg2.getPixel(10,10); 
+		Pixel focalPixel     = bg.getPixel(10, 10);
+		
+		//get the original color intensities 
+		int originalRed = focalPixel.getRed(); 
+		int originalAlpha    = focalPixel.getColor().getAlpha();
+		
+		bg.setPixelToAddRed(10, 10, 50); //add red to pixel 10,10 by positive 50 on FIRST image
+		
+		//adjust comparison copy manually, so we can check final result 
+		int newRed = originalRed + 50; 
+		originalFocalPixel.setRed(newRed); 
+		
+		alphaCorrect = focalPixel.getAlpha() == originalAlpha;
+		redCorrect = focalPixel.getRed()==originalFocalPixel.getRed(); 
+		greenCorrect = focalPixel.getGreen()==originalFocalPixel.getGreen(); 
+		blueCorrect = focalPixel.getBlue()==originalFocalPixel.getBlue(); 
+		
+		return redCorrect && greenCorrect && blueCorrect && alphaCorrect; 
+		
 	}
 	
 	/**
@@ -522,14 +631,7 @@ public class Picture extends SimplePicture
 	private void setPixelToAddGreen(int x, int y, int amount) {
 		Pixel currentPixel = this.getPixel(x, y);
 		
-		int newGreen = currentPixel.getGreen() + amount;
-		
-		if(newGreen < 0){
-			newGreen = 0;
-		}
-		else if(newGreen > 255){
-			newGreen = 255;
-		}
+		int newGreen = currentPixel.getGreen() + amount; 
 		
 		currentPixel.setGreen(newGreen);
 	}
@@ -539,6 +641,36 @@ public class Picture extends SimplePicture
 	 * the JUnit file through the public method Picture.helpersWork().
 	 */
 	private static boolean setPixelToAddGreenWorks() {
+		
+		boolean redCorrect; //initialize 
+		boolean greenCorrect; 
+		boolean blueCorrect; 
+		boolean alphaCorrect; 
+		
+		//I'm going to make two copies of the image to compare stuff. 
+		Picture bg           = Picture.loadPicture("Creek.bmp");
+		Picture bg2 		= Picture.loadPicture("Creek.bmp"); 
+		
+		//I will make two pixels, copies of the identical pixel on the two images, which are identical 
+		Pixel originalFocalPixel = bg2.getPixel(10,10); 
+		Pixel focalPixel     = bg.getPixel(10, 10);
+		
+		//get the original color intensities 
+		int originalGreen = focalPixel.getGreen(); 
+		int originalAlpha    = focalPixel.getColor().getAlpha();
+		
+		bg.setPixelToAddGreen(10, 10, 50); //add green to pixel 10,10 by positive 50 on FIRST image
+		
+		//adjust comparison copy manually, so we can check final result 
+		int newGreen = originalGreen + 50; 
+		originalFocalPixel.setGreen(newGreen); 
+		
+		alphaCorrect = focalPixel.getAlpha() == originalAlpha;
+		redCorrect = focalPixel.getRed()==originalFocalPixel.getRed(); 
+		greenCorrect = focalPixel.getGreen()==originalFocalPixel.getGreen(); 
+		blueCorrect = focalPixel.getBlue()==originalFocalPixel.getBlue(); 
+		
+		return redCorrect && greenCorrect && blueCorrect && alphaCorrect; 
 	}
 	
 	/** 
@@ -559,8 +691,8 @@ public class Picture extends SimplePicture
 	 * 	the top left corner (0, 0).
 	 */
 	public Picture chromaKey(int xRef, int yRef, Picture background, int threshold) {
-		int newPictureHeight = min(this.getHeight(), background.getHeight());
-		int newPictureWidth = min(this.getWidth(), background.getWidth());
+		int newPictureHeight = Math.min(this.getHeight(), background.getHeight());
+		int newPictureWidth = Math.min(this.getWidth(), background.getWidth());
 		
 		Picture newPicture = new Picture(newPictureWidth, newPictureHeight);
 		Pixel refPixel = this.getPixel(xRef, yRef);
@@ -568,9 +700,11 @@ public class Picture extends SimplePicture
 		
 		for(int x = 0; x < newPictureWidth; x++) {
 			for(int y = 0; y < newPictureHeight; y++) {
-				Pixel backgroundPixel = background.getPixel(x, y);
-				Color backgroundColor = backgroundPixel.getColor();
-				newPicture.setPixelToChromaKey(x, y, threshold, refColor, backgroundColor);
+				Pixel origPixel = this.getPixel(x, y);
+				Color origColor = origPixel.getColor();
+				Pixel bgPixel = background.getPixel(x, y);
+				Color bgColor = bgPixel.getColor();
+				newPicture.setPixelToChromaKey(x, y, threshold, refColor, origColor, bgColor);
 			}
 		}
 		return newPicture;
@@ -584,15 +718,15 @@ public class Picture extends SimplePicture
 	 * color distance between current pixel and reference color is within 
 	 * threshold, return true. else false.
 	 */
-	private void setPixelToChromaKey(int x, int y, int threshold, Color refColor, Color bgColor) {
+	private void setPixelToChromaKey(int x, int y, int threshold, Color refColor, Color origColor, Color bgColor) {
 		Pixel currentPixel = this.getPixel(x, y);
-		double distance = currentPixel.colorDistance(refColor, bgColor);
+		double distance = currentPixel.colorDistance(refColor, origColor);
 		
 		if((int) distance <= threshold){
 			currentPixel.setColor(bgColor);
 		}
 		else{
-			currentPixel.setColor(refColor);
+			currentPixel.setColor(origColor);
 		}
 	}
 	
@@ -601,6 +735,28 @@ public class Picture extends SimplePicture
 	 * the JUnit file through the public method Picture.helpersWork().
 	 */
 	private static boolean setPixelToChromaKeyWorks() {
+		boolean colorCorrect; //initialize 
+		boolean alphaCorrect; 
+		
+		//I'm going to make two copies of the image to compare stuff. 
+		Picture bg           = Picture.loadPicture("Creek.bmp");
+		
+		//I will make two pixels, copies of the identical pixel on the two images, which are identical 
+		Pixel focalPixel     = bg.getPixel(10, 10);
+		
+		//get the original color intensities 
+		int originalAlpha    = focalPixel.getColor().getAlpha();
+		Color bgColor = Color.green; 
+		Color origColor = focalPixel.getColor(); 
+		//Color refColor = Color.blue; 
+		
+		bg.setPixelToChromaKey(10, 10, 100, origColor, origColor, bgColor); //replace color of original with green 
+		
+		//adjust comparison copy manually, so we can check final result 
+		colorCorrect = focalPixel.getColor().equals(bgColor); 
+		alphaCorrect = focalPixel.getAlpha() == originalAlpha;
+	
+		return colorCorrect && alphaCorrect; 
 	}
 
 	//////////////////////////////// Level 2 //////////////////////////////////
@@ -618,30 +774,31 @@ public class Picture extends SimplePicture
 	 * @return A new Picture that is the rotated version of this Picture.
 	 */
 	public Picture rotate(int rotations) {
-		//if case using modulus to check how it is rotated. only 2
-		//possble conformations.
-		int pictureHeight = this.getHeight();
-		int pictureWidth = this.getWidth();
+		int shortRotations = (1 + Math.abs(rotations)) % 4;
 		
-		if (rotations % 2 == 0){
-			Picture rotatedPicture = new Picture(pictureWidth, pictureHeight);
+		if(shortRotations == 0){
+			return new Picture(this);
 		}
 		else{
+			int pictureHeight = this.getHeight();
+			int pictureWidth = this.getWidth();
 			Picture rotatedPicture = new Picture(pictureHeight, pictureWidth);
-		}
-
-		if(rotations >= 0){
-			for(int x = 0; x < pictureWidth; x++) {
-				for(int y = 0; y < pictureHeight; y++) {
-					rotatedPicture.applyRotateTransformationMatrix(x, y, this, false);
+			
+			if (rotations > 0){
+				for(int x = 0; x < pictureWidth; x++) {
+					for(int y = 0; y < pictureHeight; y++) {
+						rotatedPicture.applyRotateTransformationMatrix(x, y, this, true);
+					}
 				}
+				return rotatedPicture.rotate(rotations - 1);
 			}
-		}
-		else{
-			for(int x = 0; x < pictureWidth; x++) {
-				for(int y = 0; y < pictureHeight; y++) {
-					rotatedPicture.applyRotateTransformationMatrix(x, y, this, true);
+			else{
+				for(int x = 0; x < pictureWidth; x++) {
+					for(int y = 0; y < pictureHeight; y++) {
+						rotatedPicture.applyRotateTransformationMatrix(x, y, this, false);
+					}
 				}
+				return rotatedPicture.rotate(rotations + 1);
 			}
 		}
 		// REPLACE THE CODE BELOW WITH YOUR OWN.
@@ -654,10 +811,19 @@ public class Picture extends SimplePicture
 	 * concept. Source: http://en.wikipedia.org/wiki/Transformation_matrix
 	 * New x, y is produced and a new pixel is added to that location
 	 */
-	public void applyRotateTransformationMatrix(int x, int y, Picture originalPicture, boolean reverse){
+	public void applyRotateTransformationMatrix(int x, int y, Picture originalPicture, boolean clockwise){
 		Pixel currentPixel = originalPicture.getPixel(x, y);
-		Color currentColor = currentPixel
-		this.setPixel
+		Color currentColor = currentPixel.getColor();
+		Pixel mappedPixel;
+		
+		if(clockwise){
+			mappedPixel = this.getPixel(y + originalPicture.getHeight(), x);
+		}
+		else{
+			mappedPixel = this.getPixel(-y + originalPicture.getWidth(), x);
+		}
+		
+		
 	}
 
 	/**
