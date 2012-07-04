@@ -255,9 +255,9 @@ public class Picture extends SimplePicture
 	private void setPixelToLighten(int x, int y, int amount) {
 		Pixel currentPixel = this.getPixel(x, y);
 		
-		int newRed = curentPixel.getRed() + amount;
-		int newGreen = curentPixel.getGreen() + amount;
-		int newBlue = curentPixel.getBlue() + amount;
+		int newRed = currentPixel.getRed() + amount;
+		int newGreen = currentPixel.getGreen() + amount;
+		int newBlue = currentPixel.getBlue() + amount;
 		
 		if(newRed < 0){
 			newRed = 0;
@@ -280,9 +280,9 @@ public class Picture extends SimplePicture
 			newRed = 255;
 		}
 		
-		curentPixel.setRed(newRed);
-		curentPixel.setGreen(newGreen);
-		curentPixel.setBlue(newBlue);
+		currentPixel.setRed(newRed);
+		currentPixel.setGreen(newGreen);
+		currentPixel.setBlue(newBlue);
 	}
 	
 	/**
@@ -324,9 +324,9 @@ public class Picture extends SimplePicture
 	private void setPixelToDarken(int x, int y, int amount) {
 		Pixel currentPixel = this.getPixel(x, y);
 		
-		int newRed = curentPixel.getRed() - amount;
-		int newGreen = curentPixel.getGreen() - amount;
-		int newBlue = curentPixel.getBlue() - amount;
+		int newRed = currentPixel.getRed() - amount;
+		int newGreen = currentPixel.getGreen() - amount;
+		int newBlue = currentPixel.getBlue() - amount;
 		
 		if(newRed < 0){
 			newRed = 0;
@@ -349,9 +349,9 @@ public class Picture extends SimplePicture
 			newRed = 255;
 		}
 		
-		curentPixel.setRed(newRed);
-		curentPixel.setGreen(newGreen);
-		curentPixel.setBlue(newBlue);
+		currentPixel.setRed(newRed);
+		currentPixel.setGreen(newGreen);
+		currentPixel.setBlue(newBlue);
 	}
 	
 	/**
@@ -393,7 +393,7 @@ public class Picture extends SimplePicture
 	private void setPixelToAddBlue(int x, int y, int amount) {
 		Pixel currentPixel = this.getPixel(x, y);
 		
-		int newBlue = curentPixel.getBlue() + amount;
+		int newBlue = currentPixel.getBlue() + amount;
 		
 		if(newBlue < 0){
 			newBlue = 0;
@@ -402,7 +402,7 @@ public class Picture extends SimplePicture
 			newBlue = 255;
 		}
 		
-		curentPixel.setBlue(newBlue);
+		currentPixel.setBlue(newBlue);
 	}
 	
 	/**
@@ -444,7 +444,7 @@ public class Picture extends SimplePicture
 	private void setPixelToAddRed(int x, int y, int amount) {
 		Pixel currentPixel = this.getPixel(x, y);
 		
-		int newRed = curentPixel.getRed() + amount;
+		int newRed = currentPixel.getRed() + amount;
 		
 		if(newRed < 0){
 			newRed = 0;
@@ -453,7 +453,7 @@ public class Picture extends SimplePicture
 			newRed = 255;
 		}
 		
-		curentPixel.setRed(newRed);
+		currentPixel.setRed(newRed);
 	}
 	
 	/**
@@ -472,7 +472,7 @@ public class Picture extends SimplePicture
 	 *         by amount.
 	 */
 	public Picture addGreen(int amount) {
-		Picture newPicture = new Picture(this)
+		Picture newPicture = new Picture(this);
 		
 		int pictureHeight = this.getHeight();
 		int pictureWidth = this.getWidth();
@@ -495,7 +495,7 @@ public class Picture extends SimplePicture
 	private void setPixelToAddGreen(int x, int y, int amount) {
 		Pixel currentPixel = this.getPixel(x, y);
 		
-		int newGreen = curentPixel.getGreen() + amount;
+		int newGreen = currentPixel.getGreen() + amount;
 		
 		if(newGreen < 0){
 			newGreen = 0;
@@ -504,7 +504,7 @@ public class Picture extends SimplePicture
 			newGreen = 255;
 		}
 		
-		curentPixel.setGreen(newGreen);
+		currentPixel.setGreen(newGreen);
 	}
 	
 	/**
@@ -532,15 +532,18 @@ public class Picture extends SimplePicture
 	 * 	the top left corner (0, 0).
 	 */
 	public Picture chromaKey(int xRef, int yRef, Picture background, int threshold) {
-		Picture newPicture = new Picture(this)
-		Pixel refPixel = this.getPixel(xRef, yRef);
-		
 		int newPictureHeight = min(this.getHeight(), background.getHeight());
 		int newPictureWidth = min(this.getWidth(), background.getWidth());
 		
+		Picture newPicture = new Picture(newPictureWidth, newPictureHeight);
+		Pixel refPixel = this.getPixel(xRef, yRef);
+		Color refColor = refPixel.getColor();
+		
 		for(int x = 0; x < newPictureWidth; x++) {
 			for(int y = 0; y < newPictureHeight; y++) {
-				newPicture.setPixelToChromaKey(x, y, lightenAmount);
+				Pixel backgroundPixel = background.getPixel(x, y);
+				Color backgroundColor = backgroundPixel.getColor();
+				newPicture.setPixelToChromaKey(x, y, threshold, refColor, backgroundColor);
 			}
 		}
 		return newPicture;
@@ -550,29 +553,27 @@ public class Picture extends SimplePicture
 	
 	/**
 	 * Helper method for chromaKey(). Gets current pixel location (x, y) and 
-	 * blue amount in argument and adds value to blue value. 
-	 * New blue values cap at 0 to 255 using else if statements.
+	 * a threshold and a refernce color. Method returns a boolean type. If
+	 * color distance between current pixel and reference color is within 
+	 * threshold, return true. else false.
 	 */
-	private void setPixelToChromaKey(int x, int y, int threshold) {
+	private void setPixelToChromaKey(int x, int y, int threshold, Color refColor, Color bgColor) {
 		Pixel currentPixel = this.getPixel(x, y);
+		double distance = currentPixel.colorDistance(refColor, bgColor);
 		
-		int newBlue = curentPixel.getBlue() + amount;
-		
-		if(newBlue < 0){
-			newBlue = 0;
+		if((int) distance <= threshold){
+			currentPixel.setColor(bgColor);
 		}
-		else if(newBlue > 255){
-			newBlue = 255;
+		else{
+			currentPixel.setColor(refColor);
 		}
-		
-		curentPixel.setBlue(newBlue);
 	}
 	
 	/**
-	 * Test method for setPixelToAddBlue. This method is called by
+	 * Test method for setPixelToChromaKey. This method is called by
 	 * the JUnit file through the public method Picture.helpersWork().
 	 */
-	private static boolean setPixelToAddBlueWorks() {
+	private static boolean setPixelToChromaKeyWorks() {
 	}
 
 	//////////////////////////////// Level 2 //////////////////////////////////
@@ -590,8 +591,43 @@ public class Picture extends SimplePicture
 	 * @return A new Picture that is the rotated version of this Picture.
 	 */
 	public Picture rotate(int rotations) {
+		//if case using modulus to check how it is rotated. only 2
+		//possble conformations.
+		if (rotations % 2 == 0){
+			Picture rotatedPicture = new Picture(this.getWidth(), this.getHeight());
+		}
+		else{
+			Picture rotatedPicture = new Picture(this.getHeight(), this.getWidth());
+		}
+
+		if(rotations >= 0){
+			for(int x = 0; x < pictureWidth; x++) {
+				for(int y = 0; y < pictureHeight; y++) {
+					rotatedPicture.applyRotateTransformationMatrix(x, y, this, false);
+				}
+			}
+		}
+		else{
+			for(int x = 0; x < pictureWidth; x++) {
+				for(int y = 0; y < pictureHeight; y++) {
+					rotatedPicture.applyRotateTransformationMatrix(x, y, this, true);
+				}
+			}
+		}
 		// REPLACE THE CODE BELOW WITH YOUR OWN.
-		return new Picture(this);
+		// return new Picture(this);
+	}
+	
+	/**
+	 * Helper method that takes in (x, y) location of this picture and the
+	 * object reference to the new picture. Uses transformation matrix 
+	 * concept. Source: http://en.wikipedia.org/wiki/Transformation_matrix
+	 * New x, y is produced and a new pixel is added to that location
+	 */
+	public void applyRotateTransformationMatrix(int x, int y, Picture originalPicture, boolean reverse){
+		Pixel currentPixel = originalPicture.getPixel(x, y);
+		Color currentColor = currentPixel
+		this.setPixel
 	}
 
 	/**
