@@ -220,7 +220,20 @@ public class Picture extends SimplePicture
 	 * the JUnit file through the public method Picture.helpersWork().
 	 */
 	private static boolean setPixelToNegativeWorks() {
+		Picture bg           = Picture.loadPicture("Creek.bmp");
+		Pixel focalPixel     = bg.getPixel(10, 10);
 		
+		//grab the original RGB values, so we can do a comparison later. 
+		int originalRed = focalPixel.getRed(); 
+		int originalGreen = focalPixel.getGreen(); 
+		int originalBlue = focalPixel.getBlue(); 
+		
+		bg.setPixelToNegative(10, 10);
+		//the formula for "negate" is 255-original color 
+		boolean redCorrect   = focalPixel.getRed() == 255-originalRed; 
+		boolean greenCorrect = focalPixel.getGreen() == originalGreen; 
+		boolean blueCorrect  = focalPixel.getBlue() == originalBlue; 
+		return redCorrect && greenCorrect && blueCorrect; 
 	}
 
 	/**
@@ -290,6 +303,9 @@ public class Picture extends SimplePicture
 	 * the JUnit file through the public method Picture.helpersWork().
 	 */
 	private static boolean setPixelToLightenWorks() {
+		
+		
+		
 	}
 
 	/**
