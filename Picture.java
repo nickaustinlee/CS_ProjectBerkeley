@@ -232,7 +232,7 @@ public class Picture extends SimplePicture
 	 *         by the lightenAmount.
 	 */
 	public Picture lighten(int lightenAmount) {
-		Picture newPicture = new Picture(this)
+		Picture newPicture = new Picture(this);
 		
 		int pictureHeight = this.getHeight();
 		int pictureWidth = this.getWidth();
@@ -300,8 +300,8 @@ public class Picture extends SimplePicture
 	 * @return A new Picture that has every color value of the Picture decreased
 	 *         by the darkenenAmount.
 	 */
-	public Picture darken(int darkenenAmount) {
-		Picture newPicture = new Picture(this)
+	public Picture darken(int darkenAmount) {
+		Picture newPicture = new Picture(this);
 		
 		int pictureHeight = this.getHeight();
 		int pictureWidth = this.getWidth();
@@ -370,7 +370,7 @@ public class Picture extends SimplePicture
 	 *         by amount.
 	 */
 	public Picture addBlue(int amount) {
-		Picture newPicture = new Picture(this)
+		Picture newPicture = new Picture(this);
 		
 		int pictureHeight = this.getHeight();
 		int pictureWidth = this.getWidth();
@@ -421,7 +421,7 @@ public class Picture extends SimplePicture
 	 *         by amount.
 	 */
 	public Picture addRed(int amount) {
-		Picture newPicture = new Picture(this)
+		Picture newPicture = new Picture(this);
 		
 		int pictureHeight = this.getHeight();
 		int pictureWidth = this.getWidth();
