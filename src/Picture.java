@@ -231,8 +231,8 @@ public class Picture extends SimplePicture
 		bg.setPixelToNegative(10, 10);
 		//the formula for "negate" is 255-original color 
 		boolean redCorrect   = focalPixel.getRed() == 255-originalRed; 
-		boolean greenCorrect = focalPixel.getGreen() == originalGreen; 
-		boolean blueCorrect  = focalPixel.getBlue() == originalBlue; 
+		boolean greenCorrect = focalPixel.getGreen() == 255-originalGreen; 
+		boolean blueCorrect  = focalPixel.getBlue() == 255-originalBlue; 
 		return redCorrect && greenCorrect && blueCorrect; 
 	}
 
@@ -271,28 +271,8 @@ public class Picture extends SimplePicture
 		int newRed = currentPixel.getRed() + amount;
 		int newGreen = currentPixel.getGreen() + amount;
 		int newBlue = currentPixel.getBlue() + amount;
-		
-		if(newRed < 0){
-			newRed = 0;
-		}
-		else if(newRed > 255){
-			newRed = 255;
-		}
-		
-		if(newGreen < 0){
-			newGreen = 0;
-		}
-		else if(newGreen > 255){
-			newRed = 255;
-		}
-		
-		if(newBlue < 0){
-			newBlue = 0;
-		}
-		else if(newBlue > 255){
-			newRed = 255;
-		}
-		
+	
+		//the set commands automatically ensure values between 0 and 255 
 		currentPixel.setRed(newRed);
 		currentPixel.setGreen(newGreen);
 		currentPixel.setBlue(newBlue);
@@ -304,8 +284,39 @@ public class Picture extends SimplePicture
 	 */
 	private static boolean setPixelToLightenWorks() {
 		
+		boolean redCorrect = false; //initialize 
+		boolean greenCorrect = false; 
+		boolean blueCorrect = false; 
 		
+		Picture bg           = Picture.loadPicture("Creek.bmp");
+		Pixel focalPixel     = bg.getPixel(10, 10);
 		
+		int originalRed = focalPixel.getRed(); 
+		int originalGreen = focalPixel.getGreen(); 
+		int originalBlue = focalPixel.getBlue(); 
+		
+		bg.setPixelToLighten(10, 10, 50); //lighten pixel 10,10 by positive 50 
+		
+		if (originalRed+50<=255) { //check to see if we can get a valid value below 255
+		 redCorrect   = focalPixel.getRed() == originalRed+50;
+		} else {
+			 redCorrect = focalPixel.getRed() == 255; 
+		}
+		
+		if (originalGreen+50<=255) { //check to see if we can get a valid value below 255
+			 greenCorrect   = focalPixel.getGreen() == originalGreen+50;
+			} else {
+				 greenCorrect = focalPixel.getGreen() == 255; 
+			}
+		
+		if (originalBlue+50<=255) { //check to see if we can get a valid value below 255
+			 blueCorrect   = focalPixel.getBlue() == originalBlue+50;
+			} else {
+				 blueCorrect = focalPixel.getBlue() == 255; 
+			}
+		
+		return redCorrect && greenCorrect && blueCorrect;
+
 	}
 
 	/**
