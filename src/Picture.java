@@ -593,11 +593,14 @@ public class Picture extends SimplePicture
 	public Picture rotate(int rotations) {
 		//if case using modulus to check how it is rotated. only 2
 		//possble conformations.
+		int pictureHeight = this.getHeight();
+		int pictureWidth = this.getWidth();
+		
 		if (rotations % 2 == 0){
-			Picture rotatedPicture = new Picture(this.getWidth(), this.getHeight());
+			Picture rotatedPicture = new Picture(pictureWidth, pictureHeight);
 		}
 		else{
-			Picture rotatedPicture = new Picture(this.getHeight(), this.getWidth());
+			Picture rotatedPicture = new Picture(pictureHeight, pictureWidth);
 		}
 
 		if(rotations >= 0){
