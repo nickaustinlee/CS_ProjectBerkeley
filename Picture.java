@@ -171,49 +171,41 @@ public class Picture extends SimplePicture
 	public static boolean helpersWork() {
 		if (!Picture.setPixelToGrayWorks())
 		{
-			System.out.println("Pixel to Gray Failed"); 
 			return false;
 		}
 		
 		if (!Picture.setPixelToNegativeWorks())
 		{
-			System.out.println("Pixel to Negative Failed"); 
 			return false;
 		}
 		
 		if (!Picture.setPixelToLightenWorks())
 		{
-			System.out.println("Pixel to Lighten Failed"); 
 			return false;
 		}
 		
 		if (!Picture.setPixelToDarkenWorks())
 		{
-			System.out.println("Pixel to Darken Failed"); 
 			return false;
 		}
 		
 		if (!Picture.setPixelToAddBlueWorks())
 		{
-			System.out.println("Pixel to Blue Failed"); 
 			return false;
 		}
 		
 		if (!Picture.setPixelToAddRedWorks())
 		{
-			System.out.println("Pixel to Red Failed"); 
 			return false;
 		}
 		
 		if (!Picture.setPixelToAddGreenWorks())
 		{
-			System.out.println("Pixel to Green Failed"); 
 			return false;
 		}
 		
 		if (!Picture.setPixelToChromaKeyWorks())
 		{
-			System.out.println("Pixel to Chroma Failed"); 
 			return false;
 		}
 
@@ -739,13 +731,13 @@ public class Picture extends SimplePicture
 		boolean alphaCorrect; 
 		
 		//I'm going to make two copies of the image to compare stuff. 
-		Picture bg           = Picture.loadPicture("Creek.bmp");
+		Picture bg = Picture.loadPicture("Creek.bmp");
 		
 		//I will make two pixels, copies of the identical pixel on the two images, which are identical 
-		Pixel focalPixel     = bg.getPixel(10, 10);
+		Pixel focalPixel = bg.getPixel(10, 10);
 		
 		//get the original color intensities 
-		int originalAlpha    = focalPixel.getColor().getAlpha();
+		int originalAlpha = focalPixel.getColor().getAlpha();
 		Color bgColor = Color.green; 
 		Color origColor = focalPixel.getColor(); 
 		//Color refColor = Color.blue; 
@@ -753,7 +745,7 @@ public class Picture extends SimplePicture
 		bg.setPixelToChromaKey(10, 10, 100, origColor, origColor, bgColor); //replace color of original with green 
 		
 		//adjust comparison copy manually, so we can check final result 
-		colorCorrect = focalPixel.getColor().equals(bgColor); 
+		colorCorrect = focalPixel.getColor() == bgColor; 
 		alphaCorrect = focalPixel.getAlpha() == originalAlpha;
 	
 		return colorCorrect && alphaCorrect; 
@@ -774,7 +766,7 @@ public class Picture extends SimplePicture
 	 * @return A new Picture that is the rotated version of this Picture.
 	 */
 	public Picture rotate(int rotations) {
-		int shortRotations = (1 + Math.abs(rotations)) % 4;
+		int shortRotations = Math.abs(rotations) % 4;
 		
 		if(shortRotations == 0){
 			return new Picture(this);
@@ -817,13 +809,13 @@ public class Picture extends SimplePicture
 		Pixel mappedPixel;
 		
 		if(clockwise){
-			mappedPixel = this.getPixel(y + originalPicture.getHeight(), x);
+			mappedPixel = this.getPixel(originalPicture.getHeight() - y, x);
+			mappedPixel.setColor(currentColor);
 		}
 		else{
-			mappedPixel = this.getPixel(-y + originalPicture.getWidth(), x);
+			mappedPixel = this.getPixel(y, originalPicture.getWidth() - x);
+			mappedPixel.setColor(currentColor);
 		}
-		
-		
 	}
 
 	/**
