@@ -733,7 +733,7 @@ public class Picture extends SimplePicture {
         bg.setPixelToChromaKey(10, 10, 100, origColor, origColor, bgColor); //replace color of original with green
 
         //adjust comparison copy manually, so we can check final result
-        colorCorrect = focalPixel.getColor() == bgColor;
+        colorCorrect = focalPixel.getColor().equals(bgColor);
         alphaCorrect = focalPixel.getAlpha() == originalAlpha;
 
         return colorCorrect && alphaCorrect;
@@ -915,10 +915,101 @@ public class Picture extends SimplePicture {
      * alpha of 255). The pixel at (0, 0) will always be set to white.
      */
     public Picture showEdges(int threshold) {
-        /*
-         * REPLACE THE CODE BELOW WITH YOUR OWN.
-         */
-        return new Picture(this);
+       
+    	//I'm going to hard-code in the rules to make this more efficient, 
+    	//Instead of doing if/else checks every pixel. 
+    	int pictureWidth = this.getWidth(); 
+    	int pictureHeight = this.getHeight(); 
+    	Picture edgesPicture = new Picture(pictureWidth, pictureHeight); //build new picture
+    	
+    	Pixel focalPixel; //the pixel we will replace in the new picture
+    	Pixel currentOriginalPixel; //the pixel of interest in the original image
+    	Pixel comparisonPixelLeft;  	//the pixel to the left
+    	Pixel comparisonPixelNorth; 	//the pixel to the North 
+    	
+    	//initialize pixel 0, 0 
+    	focalPixel = edgesPicture.getPixel(0,0); 
+    	focalPixel.setAlpha(255); 
+    	
+    	//Scan top row of pixels
+    	int y = 0; 
+    	for (int x = 1; x <pictureWidth; x++) {
+             currentOriginalPixel = this.getPixel(x, y);
+             focalPixel = edgesPicture.getPixel(x,y); //get corresponding pixel
+             comparisonPixelLeft = this.getPixel(x-1,y); 
+             Color origColor = currentOriginalPixel.getColor(); 
+             Color refColor = comparisonPixelLeft.getColor(); 
+            double distance = currentOriginalPixel.colorDistance(refColor, origColor);
+
+            if ((int) distance > threshold) {
+            	focalPixel.setRed(0); 
+            	focalPixel.setGreen(0); 
+            	focalPixel.setBlue(0); 
+            	focalPixel.setAlpha(255); //set it all to black
+            } else {
+            	focalPixel.setRed(255); 
+            	focalPixel.setGreen(255); 
+            	focalPixel.setBlue(255); 
+            	focalPixel.setAlpha(255); //set it all to white
+            }
+    	}
+    	
+    	//Scan left column of pixels
+    	int x = 0; 
+    	for (int y1 = 1; y1 <pictureHeight; y1++) {
+             currentOriginalPixel = this.getPixel(x, y1);
+             focalPixel = edgesPicture.getPixel(x, y1); 
+             comparisonPixelNorth = this.getPixel(x,y1-1); 
+             Color origColor = currentOriginalPixel.getColor(); 
+             Color refColor = comparisonPixelNorth.getColor(); 
+            double distance = currentOriginalPixel.colorDistance(refColor, origColor);
+
+            if ((int) distance > threshold) {
+            	focalPixel.setRed(0); 
+            	focalPixel.setGreen(0); 
+            	focalPixel.setBlue(0); 
+            	focalPixel.setAlpha(255); //set it all to black
+            } else {
+            	focalPixel.setRed(255); 
+            	focalPixel.setGreen(255); 
+            	focalPixel.setBlue(255); 
+            	focalPixel.setAlpha(255); //set it all to white
+            }
+    	}
+    	
+    	//now iterate through the rest of the image, now that the edge cases are covered
+    	for (int x2 = 1; x2 < pictureWidth; x2++) {
+    		for (int y2 = 1; y2 < pictureHeight; y2++) {
+    			currentOriginalPixel = this.getPixel(x2, y2); 
+    			focalPixel = edgesPicture.getPixel(x2, y2); 
+    			comparisonPixelNorth = this.getPixel(x2,y2-1); 
+    			comparisonPixelLeft = this.getPixel(x2-1, y2); 
+    			Color origColor = currentOriginalPixel.getColor(); 
+    			Color northColor = comparisonPixelNorth.getColor(); 
+    			Color leftColor = comparisonPixelLeft.getColor(); 
+    			
+    			double distanceNorth = currentOriginalPixel.colorDistance(northColor, origColor); 
+    			double distanceLeft = currentOriginalPixel.colorDistance(leftColor, origColor); 
+    			
+    			if ((int) distanceNorth > threshold || (int) distanceLeft > threshold) {
+    				focalPixel.setRed(0); 
+    				focalPixel.setGreen(0); 
+    				focalPixel.setBlue(0); 
+    				focalPixel.setAlpha(255); //set it all to black
+    			} else {
+    				focalPixel.setRed(255); 
+    				focalPixel.setGreen(255); 
+    				focalPixel.setBlue(255); 
+    				focalPixel.setAlpha(255); //set it all to white
+
+    			}
+    		
+    		}
+    	}
+    	
+    	
+    	
+        return edgesPicture; //new Picture(this);
     }
 
     //////////////////////////////// Level 3 //////////////////////////////////
