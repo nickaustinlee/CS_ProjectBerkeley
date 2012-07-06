@@ -829,16 +829,12 @@ public class Picture extends SimplePicture {
 		if (axis==Picture.HORIZONTAL) {
 			//horizontal axis means vertical mirroring 
 			 flippedPic = new Picture(pictureWidth, pictureHeight);
-			 Pixel mirrorPixel; 
-			 Pixel currentPixel; 
-			 Color originalColor; 
-			 System.out.println("The width is " + pictureWidth + "and height is " + pictureHeight); 
 			for(int y = 0; y < pictureHeight; y++){
 				mirroredYcoord = pictureHeight - y - 1; 			//mirror the y coordinate
 				for(int x = 0; x < pictureWidth; x++) {	//x coordinates are identical 
-					currentPixel = this.getPixel(x, y); //get the current pixel we're iterating
-					originalColor = currentPixel.getColor();  //get original color 
-					mirrorPixel = flippedPic.getPixel(x, mirroredYcoord);  //grab mirrored pixel
+					Pixel currentPixel = this.getPixel(x, y); //get the current pixel we're iterating
+					Color originalColor = currentPixel.getColor();  //get original color 
+					Pixel mirrorPixel = flippedPic.getPixel(x, mirroredYcoord);  //grab mirrored pixel
 					mirrorPixel.setColor(originalColor); 	//set the mirrored pixel to the original pixel
 				}	
 			}
