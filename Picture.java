@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.net.URL;
+import java.util.ArrayList;
 import java.lang.Math;
 
 /**
@@ -167,31 +168,31 @@ public class Picture extends SimplePicture {
         if (!Picture.setPixelToGrayWorks()) {
             return false;
         }
-
+        
         if (!Picture.setPixelToNegativeWorks()) {
             return false;
         }
-
+        
         if (!Picture.setPixelToLightenWorks()) {
             return false;
         }
-
+        
         if (!Picture.setPixelToDarkenWorks()) {
             return false;
         }
-
+        
         if (!Picture.setPixelToAddBlueWorks()) {
             return false;
         }
-
+        
         if (!Picture.setPixelToAddRedWorks()) {
             return false;
         }
-
+        
         if (!Picture.setPixelToAddGreenWorks()) {
             return false;
         }
-
+        
         if (!Picture.setPixelToChromaKeyWorks()) {
             return false;
         }
@@ -203,7 +204,19 @@ public class Picture extends SimplePicture {
         if(!Picture.setPixelToBlackWorks()) {
         	return false; 
         }
-
+        
+        if(!Picture.applyRotateTransformationMatrixWorks()) {
+        	return false; 
+        }
+        
+        if(!Picture.flipPixelHorizontalAxisWorks()) {
+        	return false; 
+        }
+        
+        if (!Picture.flipPixelVerticalAxisWorks()) {
+        	return false; 
+        }
+        
         return true;
     }
 
@@ -808,6 +821,36 @@ public class Picture extends SimplePicture {
             mappedPixel.setColor(currentColor);
         }
     }
+    
+    //test our rotation helper 
+    private static boolean applyRotateTransformationMatrixWorks() {
+    	//it should move a pixel in a 2x2 grid from 0,0 to 1,0
+    	Picture testPic = new Picture(2,2); //build a 2x2 image
+    	testPic.setPixelToWhite(0, 0); 
+    	testPic.setPixelToBlack(1, 0); 
+    	testPic.setPixelToAddBlue(1, 1, 100); 
+    	testPic.setPixelToAddRed(0,1,100); 
+    	
+    	Pixel upperLeftPixelPrior = testPic.getPixel(0, 0); 
+    	Pixel upperRightPixelPrior = testPic.getPixel(1,0); 
+    	Pixel lowerRightPixelPrior = testPic.getPixel(1,1); 
+    	Pixel lowerLeftPixelPrior = testPic.getPixel(0,1); 
+    	
+    	testPic.applyRotateTransformationMatrix(0,0, testPic, true); 
+    	
+    	Pixel upperLeftPixelPost = testPic.getPixel(0,0); 
+    	Pixel upperRightPixelPost = testPic.getPixel(1,0); 
+    	Pixel lowerRightPixelPost = testPic.getPixel(1,1); 
+    	Pixel lowerLeftPixelPost = testPic.getPixel(0,1); 
+    	
+    	boolean rotate1 = upperLeftPixelPost.getColor().equals(lowerLeftPixelPrior.getColor()); 
+    	boolean rotate2 = upperRightPixelPost.getColor().equals(upperLeftPixelPrior.getColor()); 
+    	boolean rotate3 = lowerRightPixelPost.getColor().equals(upperRightPixelPrior.getColor()); 
+    	boolean rotate4 = lowerLeftPixelPost.getColor().equals(lowerRightPixelPrior.getColor()); 
+    	
+    	return rotate1 && rotate2 && rotate3 && rotate4; 
+    	
+    }
 
     /**
      * Flips this Picture about the given axis. The axis can be one of four
@@ -827,42 +870,33 @@ public class Picture extends SimplePicture {
      * @return A new Picture flipped about the axis provided.
      */
 	public Picture flip(int axis) {
-
+        
 		int pictureHeight = this.getHeight();
 		int pictureWidth = this.getWidth();
 		int mirroredXcoord; 
 		int mirroredYcoord; 
 		Picture flippedPic = null; 
-
+        
 		if (axis==Picture.HORIZONTAL) {
 			//horizontal axis means vertical mirroring 
-			 flippedPic = new Picture(pictureWidth, pictureHeight);
+            flippedPic = new Picture(pictureWidth, pictureHeight);
 			for(int y = 0; y < pictureHeight; y++){
-				mirroredYcoord = pictureHeight - y - 1; 			//mirror the y coordinate
-				for(int x = 0; x < pictureWidth; x++) {	//x coordinates are identical 
-					Pixel currentPixel = this.getPixel(x, y); //get the current pixel we're iterating
-					Color originalColor = currentPixel.getColor();  //get original color 
-					Pixel mirrorPixel = flippedPic.getPixel(x, mirroredYcoord);  //grab mirrored pixel
-					mirrorPixel.setColor(originalColor); 	//set the mirrored pixel to the original pixel
+				for(int x = 0; x < pictureWidth; x++) {	
+					flippedPic.flipPixelHorizontalAxis(x,y,this); 
 				}	
 			}
 		}
-
+        
 		else if (axis == Picture.VERTICAL) {
 			//vertical axis means horizontal mirroring 
-			 flippedPic = new Picture(pictureWidth, pictureHeight);
+            flippedPic = new Picture(pictureWidth, pictureHeight);
 			for(int x = 0; x < pictureWidth; x++) {
-				mirroredXcoord = pictureWidth - x - 1; 			//mirror the x coordinate
 				for(int y = 0; y < pictureHeight; y++) {	//y coordinates are identical 
-					Pixel currentPixel = this.getPixel(x, y); //get the current pixel we're iterating
-					Color originalColor = currentPixel.getColor();  //get original color 
-					Pixel mirrorPixel = flippedPic.getPixel(mirroredXcoord, y);  //grab mirrored pixel
-					mirrorPixel.setColor(originalColor); 	//set the mirrored pixel to the original pixel 
-
+					flippedPic.flipPixelVerticalAxis(x, y, this); 
 				}
 			}
 		}
-
+        
 		else if (axis == Picture.FORWARD_DIAGONAL) {
 			//forward diagonal
 			//ROTATE ONCE RIGHT, then flip on HORIZONTAL AXIS (e.g. vertical mirroring) 
@@ -870,21 +904,14 @@ public class Picture extends SimplePicture {
 			int newWidth = rotatedPic.getWidth(); //get the width
 			int newHeight = rotatedPic.getHeight();  //get the height 
 			flippedPic = new Picture(newWidth, newHeight); //make a new picture 
-			 Pixel mirrorPixel; 
-			 Pixel currentPixel; 
-			 Color originalColor; 
-
+            
 			for(int y = 0; y < newHeight; y++){
-				mirroredYcoord = newHeight - y - 1; 			//mirror the y coordinate
 				for(int x = 0; x < newWidth; x++) {	//x coordinates are identical 
-					currentPixel = rotatedPic.getPixel(x, y); //get the current pixel we're iterating
-					originalColor = currentPixel.getColor();  //get original color 
-					mirrorPixel = flippedPic.getPixel(x, mirroredYcoord);  //grab mirrored pixel
-					mirrorPixel.setColor(originalColor); 	//set the mirrored pixel to the original pixel
+                    flippedPic.flipPixelHorizontalAxis(x, y, rotatedPic); 
 				}	
 			}
 		}
-
+        
 		else if (axis == Picture.BACKWARD_DIAGONAL) {
 			//backward diagonal
 			//ROTATE ONCE RIGHT, then flip on VERTICAL AXIS (e.g. horizontal mirroring) 
@@ -892,20 +919,97 @@ public class Picture extends SimplePicture {
 			int newWidth = rotatedPic.getWidth();  //get the width
 			int newHeight = rotatedPic.getHeight();  //get the height
 			flippedPic = new Picture(newWidth, newHeight); //make a new picture 
-
+            
 			for(int x = 0; x < newWidth; x++) {
-				mirroredXcoord = newWidth - x - 1; 			//mirror the x coordinate
 				for(int y = 0; y < newHeight; y++) {	//y coordinates are identical 
-					Pixel currentPixel = rotatedPic.getPixel(x, y); //get the current pixel we're iterating
-					Color originalColor = currentPixel.getColor();  //get original color 
-					Pixel mirrorPixel = flippedPic.getPixel(mirroredXcoord, y);  //grab mirrored pixel
-					mirrorPixel.setColor(originalColor); 	//set the mirrored pixel to the original pixel 
+					flippedPic.flipPixelVerticalAxis(x, y, rotatedPic); 
 				}
 			}
 		}
-
-
+        
+        
 		return flippedPic; //new Picture(this);
+	}
+    
+    //HELPER METHODS for flip
+	public void flipPixelHorizontalAxis(int x, int y, Picture originalPicture){
+		int mirroredYcoord = originalPicture.getHeight() - y - 1; 			//mirror the y coordinate
+		Pixel currentPixel = originalPicture.getPixel(x, y); //get the current pixel we're going to mirror
+		Color originalColor = currentPixel.getColor();  //get original color 
+		
+		Pixel mirrorPixel = this.getPixel(x, mirroredYcoord);  //grab mirrored pixel
+		mirrorPixel.setColor(originalColor); 	//set the mirrored pixel to the original pixel
+	}
+	
+	public void flipPixelVerticalAxis(int x, int y, Picture originalPicture) {
+		int mirroredXcoord = originalPicture.getWidth() - x - 1; //mirror the x coordinate
+		Pixel currentPixel = originalPicture.getPixel(x, y); //get the current pixel we're going to mirror
+		Color originalColor = currentPixel.getColor();  //get original color 
+		
+		Pixel mirrorPixel = this.getPixel(mirroredXcoord, y);  //grab mirrored pixel
+		mirrorPixel.setColor(originalColor); 	//set the mirrored pixel to the original pixel
+	}
+	
+	//helper test methods
+	private static boolean flipPixelHorizontalAxisWorks() {
+    	Picture testPic = new Picture(2,2); //build a 2x2 image
+    	testPic.setPixelToWhite(0, 0); 
+    	testPic.setPixelToBlack(1, 0); 
+    	testPic.setPixelToAddBlue(1, 1, 100); 
+    	testPic.setPixelToAddRed(0,1,100); 
+    	
+    	Pixel upperLeftPixelPrior = testPic.getPixel(0, 0); 
+    	Pixel upperRightPixelPrior = testPic.getPixel(1,0); 
+    	Pixel lowerRightPixelPrior = testPic.getPixel(1,1); 
+    	Pixel lowerLeftPixelPrior = testPic.getPixel(0,1); 
+    	
+    	for(int x = 0; x < testPic.getWidth(); x++) {
+    		for(int y = 0; y < testPic.getHeight(); y++) {
+    			testPic.flipPixelHorizontalAxis(x, y, testPic); 
+    		}
+    	}
+    	
+    	Pixel upperLeftPixelPost = testPic.getPixel(0,0); 
+    	Pixel upperRightPixelPost = testPic.getPixel(1,0); 
+    	Pixel lowerRightPixelPost = testPic.getPixel(1,1); 
+    	Pixel lowerLeftPixelPost = testPic.getPixel(0,1); 
+    	
+    	boolean flip1 = upperLeftPixelPost.getColor().equals(lowerLeftPixelPrior.getColor()); 
+    	boolean flip2 = upperRightPixelPost.getColor().equals(lowerRightPixelPrior.getColor()); 
+        
+    	return flip1 && flip2; 
+    	
+	}
+	
+	//helper test methods
+	private static boolean flipPixelVerticalAxisWorks() {
+    	Picture testPic = new Picture(2,2); //build a 2x2 image
+    	testPic.setPixelToWhite(0, 0); 
+    	testPic.setPixelToBlack(1, 0); 
+    	testPic.setPixelToAddBlue(1, 1, 100); 
+    	testPic.setPixelToAddRed(0,1,100); 
+    	
+    	Pixel upperLeftPixelPrior = testPic.getPixel(0, 0); 
+    	Pixel upperRightPixelPrior = testPic.getPixel(1,0); 
+    	Pixel lowerRightPixelPrior = testPic.getPixel(1,1); 
+    	Pixel lowerLeftPixelPrior = testPic.getPixel(0,1); 
+    	
+    	for(int x = 0; x < testPic.getWidth(); x++) {
+    		for(int y = 0; y < testPic.getHeight(); y++) {
+    			testPic.flipPixelVerticalAxis(x, y, testPic); 
+    		}
+    	}
+    	
+    	Pixel upperLeftPixelPost = testPic.getPixel(0,0); 
+    	Pixel upperRightPixelPost = testPic.getPixel(1,0); 
+    	Pixel lowerRightPixelPost = testPic.getPixel(1,1); 
+    	Pixel lowerLeftPixelPost = testPic.getPixel(0,1); 
+    	
+    	boolean flip1 = upperLeftPixelPost.getColor().equals(upperRightPixelPrior.getColor()); 
+    	boolean flip2 = lowerLeftPixelPost.getColor().equals(lowerRightPixelPrior.getColor()); 
+    	
+    	return flip1 && flip2; 
+    	
 	}
 
     /**
@@ -1087,12 +1191,63 @@ public class Picture extends SimplePicture {
      * the final Picture.
      */
     public Picture convertToAscii() {
-        /*
-         * REPLACE THE CODE BELOW WITH YOUR OWN.
-         */
-        return new Picture(this);
-    }
+        Picture ASCIIPicture = new Picture(this.grayscale());
+        
+        for (int i = 0; i < ASCIIPicture.getWidth(); i += 10){
+            for (int j = 0; j < ASCIIPicture.getHeight(); j += 20){
+                ASCIIPicture.setToAsciiChar(i, j);
+            }
+        }
+        
+        return ASCIIPicture;
 
+    }
+    
+    /*
+     * takes in (x, y) of the currently calculated boundary. calculates the  
+     * average bounded the currently iterated 10 x 20 area. looks up the
+     * ASCII "library" function based on the average and starts painting the
+     * ASCII image. if statement checks and reinitializes boundary if too close
+     * to the edge.
+     */
+    public void setToAsciiChar(int x, int y){
+        int width = x + 10;
+        int height = y + 20;
+        int boundedAverage = 0;
+        int count = 0;
+        Pixel greyPixel;
+        
+        if ((this.getWidth() - x) < 10){
+            width = this.getWidth() - x;
+        }
+        if((this.getHeight() - y) < 20){
+            height = this.getHeight() - y;
+        }
+        
+        //calculates the 10x20 bounded average and paints the respective ascii
+        // pic onto this
+        for(int i = x; i < width; i++){
+            for(int j = y; j < height; j++){
+                greyPixel = this.getPixel(i, j);
+                boundedAverage += greyPixel.getAverage();
+                count++;
+            }
+        }
+        
+        boundedAverage = boundedAverage / (count);
+        
+        //looks up the library
+        Picture ASCIICharacter = getAsciiPic(boundedAverage);
+
+        for(int i = x; i < width; i++){
+            for(int j = y; j < height; j++){
+                greyPixel = this.getPixel(i, j);
+                Pixel ASCIIPixel = ASCIICharacter.getPixel(i - x, j - y);
+                greyPixel.setColor(ASCIIPixel.getColor());
+            }
+        }
+    }
+    
     /**
      * Blurs this Picture. To achieve this, the algorithm takes a pixel, and
      * sets it to the average value of all the pixels in a square of side (2 *
@@ -1112,11 +1267,80 @@ public class Picture extends SimplePicture {
      * a blurring square of size (2 * threshold) + 1.
      */
     public Picture blur(int blurThreshold) {
-        /*
-         * REPLACE THE CODE BELOW WITH YOUR OWN.
-         */
-        return new Picture(this);
+    	Picture originalPic = this; 
+        Picture blurryPic = new Picture(this.getWidth(), this.getHeight());  //make a blank canvas
+        Pixel focalPixel; 
+
+        for(int x=0; x<this.getWidth(); x++){
+        	for(int y=0; y<this.getHeight(); y++) {
+        		focalPixel = blurryPic.getPixel(x,y); 
+        		focalPixel.setColor(getBlurColor(originalPic, x, y, blurThreshold)); 
+        	}
+        }
+        
+        
+        //now I need to build an array of x and y coordinates for all of the pixels. 
+        //I must ignore pixels that fall off the grid. 
+        
+        
+        return blurryPic; 
     }
+        
+    /*
+     * Takes current (x, y) boundary being blurred, and the boundary.
+     * paints the boundary with lemon color (the averaged color returned by
+     * another helper method). Paints boubdary with this color.  if statement 
+     * checks and reinitializes boundary if too close to the edge.
+     */
+    public Color getBlurColor(Picture originalPicture, int x, int y, int blurThreshold){
+    	//Pixel myPixel = originalPicture.getPixel(x,y); 
+    	
+    int theCount = (2*blurThreshold+1)*(2*blurThreshold+1); //max size
+    ArrayList<Pixel> myArrayListOfPixels = new ArrayList<Pixel>(theCount); //build an arraylist of max size theCount
+    	
+    //this if/else statement should reduce the runtime by a bit. 
+    if (x<=blurThreshold || y<=blurThreshold || x>=originalPicture.getWidth()-blurThreshold || y>=originalPicture.getHeight()-blurThreshold) {
+    	for (int x1 = x-blurThreshold; x1<=x+blurThreshold; x1++) {
+    		for (int y1 = y-blurThreshold; y1<=y+blurThreshold; y1++) {
+    			if (x1<0 || y1 < 0 || x1>=originalPicture.getWidth() || y1 >=originalPicture.getHeight()) {
+    			theCount--; //remove this pixel, it's out of bounds. 
+    		} else { //store in my ArrayList 
+    			Pixel newPixel = new Pixel(originalPicture, x1,y1); //create a new pixel
+    			myArrayListOfPixels.add(newPixel); //zomg store pixels I hope this works  
+    		}
+    	} 
+    }
+      	//shorten the array list to what's in it
+    	myArrayListOfPixels.trimToSize(); 
+    } else {
+    	for (int x1 = x-blurThreshold; x1<=x+blurThreshold; x1++) {
+    		for (int y1 = y-blurThreshold; y1<=y+blurThreshold; y1++) {
+    			Pixel newPixel = new Pixel(originalPicture, x1,y1); //create a new pixel
+    			myArrayListOfPixels.add(newPixel); //zomg store pixels I hope this works  
+    		}
+    	} 
+    }
+
+    	int lemonRed, lemonGreen, lemonBlue, lemonAlpha; 
+    	int sumRed = 0, sumGreen = 0, sumBlue = 0, sumAlpha = 0;  
+    	
+    	for (int i = 0; i<myArrayListOfPixels.size(); i++) {
+    		sumRed = sumRed + myArrayListOfPixels.get(i).getRed(); 
+    		sumBlue = sumBlue + myArrayListOfPixels.get(i).getBlue(); 
+    		sumGreen = sumGreen + myArrayListOfPixels.get(i).getGreen(); 
+    		sumAlpha = sumAlpha + myArrayListOfPixels.get(i).getAlpha(); 
+    	}
+    	
+    	lemonRed = sumRed/theCount; 
+    	lemonGreen = sumGreen/theCount; 
+    	lemonBlue = sumBlue/theCount; 
+    	lemonAlpha = sumAlpha/theCount; 
+
+    	Color lemonColor = new Color(lemonRed, lemonGreen, lemonBlue, lemonAlpha); 
+    	
+    	return lemonColor; 
+        
+        }
 
     /**
      * @param x x-coordinate of the pixel currently selected.
@@ -1130,10 +1354,46 @@ public class Picture extends SimplePicture {
      * color provided.
      */
     public Picture paintBucket(int x, int y, int threshold, Color newColor) {
+        Picture paintedPicture = new Picture(this);
+        Pixel refPixel = paintedPicture.getPixel(x, y);
+        Color refColor = refPixel.getColor();
+        refPixel.setColor(newColor);
+        
+        paintedPicture.paintPixels(x + 1, y, threshold, refColor, newColor);
+        paintedPicture.paintPixels(x - 1, y, threshold, refColor, newColor);
+        paintedPicture.paintPixels(x, y + 1, threshold, refColor, newColor);
+        paintedPicture.paintPixels(x, y - 1, threshold, refColor, newColor);
+        paintedPicture.paintPixels(x + 1, y + 1, threshold, refColor, newColor);
+        paintedPicture.paintPixels(x + 1, y - 1, threshold, refColor, newColor);
+        paintedPicture.paintPixels(x - 1, y + 1, threshold, refColor, newColor);
+        paintedPicture.paintPixels(x - 1, y - 1, threshold, refColor, newColor);
+        
+        return paintedPicture;
         /*
          * REPLACE THE CODE BELOW WITH YOUR OWN.
          */
-        return new Picture(this);
+        // return new Picture(this);
+    }
+    
+    public void paintPixels(int x, int y, int threshold, Color refColor, Color newColor){  
+        if(x < 0 || y < 0 || x >= this.getWidth() || y >= this.getHeight()){
+            return;
+        }
+        
+        Pixel currentPixel = this.getPixel(x, y);
+        
+        if(currentPixel.colorDistance(refColor) > 0 && currentPixel.colorDistance(refColor) <= threshold){
+            currentPixel.setColor(newColor);
+            
+            this.paintPixels(x + 1, y, threshold, refColor, newColor);
+            this.paintPixels(x - 1, y, threshold, refColor, newColor);
+            this.paintPixels(x, y + 1, threshold, refColor, newColor);
+            this.paintPixels(x, y - 1, threshold, refColor, newColor);
+            this.paintPixels(x + 1, y + 1, threshold, refColor, newColor);
+            this.paintPixels(x + 1, y - 1, threshold, refColor, newColor);
+            this.paintPixels(x - 1, y + 1, threshold, refColor, newColor);
+            this.paintPixels(x - 1, y - 1, threshold, refColor, newColor);
+        }
     }
 
     ///////////////////////// PROJECT 1 ENDS HERE /////////////////////////////

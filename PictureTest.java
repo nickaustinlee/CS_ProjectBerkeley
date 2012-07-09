@@ -277,4 +277,65 @@ public class PictureTest extends TestCase {
 	/**
 	 * Helper method for loading a picture in the current directory.
 	 */
+	
+	/*
+	 * Validate that rotate(3) works and does not modify the 
+	 * original Picture object.
+	 */
+	//ADDITIONAL TESTS FOR SPECIAL SITUATIONS 
+	public void testRotate4()
+	{
+		Picture pic 		= Picture.loadPicture("CalOriginal.bmp");
+		Picture picCopy 	= new Picture(pic);
+		Picture picCorrect	= Picture.loadPicture("CalOriginal.bmp");
+		Picture picTest		= pic.rotate(4);
+		assertTrue(pic.equals(picCopy));
+		assertTrue(picCorrect.equals(picTest));
+	}
+	
+	public void testFlipHorixontal2()
+	{
+		Picture pic 		= Picture.loadPicture("CalOriginal.bmp");
+		Picture picCopy 	= new Picture(pic);
+		Picture picCorrect	= Picture.loadPicture("CalOriginal.bmp");
+		Picture picTest		= pic.flip(Picture.HORIZONTAL);
+		picTest = picTest.flip(Picture.HORIZONTAL); //flip back 
+		assertTrue(pic.equals(picCopy));
+		assertTrue(picCorrect.equals(picTest));
+	}
+	
+	public void testFlipVertical2()
+	{
+		Picture pic 		= Picture.loadPicture("CalOriginal.bmp");
+		Picture picCopy 	= new Picture(pic);
+		Picture picCorrect	= Picture.loadPicture("CalOriginal.bmp");
+		Picture picTest		= pic.flip(Picture.VERTICAL);
+		picTest = picTest.flip(Picture.VERTICAL); //flip back 
+		assertTrue(pic.equals(picCopy));
+		assertTrue(picCorrect.equals(picTest));
+	}
+	
+	public void testNegate2()
+	{
+		Picture pic 		= Picture.loadPicture("Creek.bmp");
+		Picture picCopy 	= new Picture(pic);
+		Picture picCorrect	= Picture.loadPicture("Creek.bmp");
+		Picture picTest		= pic.negate();
+		picTest = picTest.negate(); 
+		assertTrue(pic.equals(picCopy));
+		assertTrue(picCorrect.equals(picTest));
+	}
+	
+	//lighten and darken should cancel each other out perfectly. 
+	public void testColorTranslationsNeutralize()
+	{
+		Picture pic = Picture.loadPicture("Gray.bmp");
+		Picture comparePic = Picture.loadPicture("Gray.bmp");
+		pic.darken(30); 
+		pic.lighten(30); 
+		assertTrue(comparePic.equals(pic));
+			
+	}
+	
 }
+
